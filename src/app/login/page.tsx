@@ -1,0 +1,9 @@
+ "use client";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+export default function Login(){const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [status,setStatus]=useState("");const [busy,setBusy]=useState(false);const router=useRouter();
+ async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setStatus("");try{const supabase=createClient();const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;router.push("/dashboard");router.refresh()}catch(err){setStatus(err instanceof Error&&err.message.includes("not configured")?"Setup required: configure Supabase environment variables first.":"Login failed. Check your email and password, or confirm your account in Supabase.")}finally{setBusy(false)}}
+ return <main className="page-shell"><div className="eyebrow">Private Area</div><h1 style={{fontFamily:"Cinzel,serif",color:"var(--gold2)",fontWeight:500}}>MEMBER LOGIN</h1><div className="panel"><form className="form" onSubmit={submit}><label className="field">Email<input type="email" required autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label><label className="field">Password<input type="password" required autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><button className="btn primary" disabled={busy}>{busy?"Signing in…":"Sign In"}</button>{status&&<div className="notice" role="status">{status}</div>}<p className="muted">Accounts are authenticated by Supabase. Public registration is not enabled on this page; create accounts through your trusted admin workflow.</p></form></div><p><Link className="text-link" href="/">← Return home</Link></p></main>}
